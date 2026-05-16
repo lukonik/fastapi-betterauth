@@ -1,21 +1,22 @@
 from ssl import SSLContext
-from typing import Any, TypedDict, Unpack
+from typing import Any, TypedDict, Union
 
 import jwt
 from jwt import PyJWKClient
+from typing_extensions import Unpack
 
-CLIENT: PyJWKClient | None = None
-BASE_URL: str | None = None
+CLIENT: Union[PyJWKClient, None] = None
+BASE_URL: Union[str, None] = None
 
 
 class PyJWKClientKwargs(TypedDict, total=False):
     cache_keys: bool
     max_cached_keys: int
     cache_jwk_set: bool
-    lifespan: int
-    headers: dict[str, Any] | None
-    timeout: int
-    ssl_context: SSLContext | None
+    lifespan: float
+    headers: Union[dict[str, Any], None]
+    timeout: float
+    ssl_context: Union[SSLContext, None]
 
 
 def init_client(
@@ -37,6 +38,7 @@ def _assert_client() -> PyJWKClient:
     if CLIENT is None:
         raise RuntimeError("Client is not initialized call init_client first")
     return CLIENT
+
 
 def validate_token(token: str):
     client = _assert_client()

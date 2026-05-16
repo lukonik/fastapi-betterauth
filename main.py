@@ -1,11 +1,16 @@
 from ssl import SSLContext
-from typing import Any, TypedDict, Unpack
+from typing import Any, TypedDict, Union
+
+try:
+    from typing import Unpack
+except ImportError:  # Python <3.11
+    from typing_extensions import Unpack
 
 import jwt
 from jwt import PyJWKClient
 
-CLIENT: PyJWKClient | None = None
-BASE_URL: str | None = None
+CLIENT: Union[PyJWKClient, None] = None
+BASE_URL: Union[str, None] = None
 
 
 class PyJWKClientKwargs(TypedDict, total=False):
@@ -13,9 +18,9 @@ class PyJWKClientKwargs(TypedDict, total=False):
     max_cached_keys: int
     cache_jwk_set: bool
     lifespan: int
-    headers: dict[str, Any] | None
+    headers: Union[dict[str, Any], None]
     timeout: int
-    ssl_context: SSLContext | None
+    ssl_context: Union[SSLContext, None]
 
 
 def init_client(
