@@ -1,9 +1,52 @@
 [project]
-name = "better-auth-fast-api"
+name = "fastapi-betterauth"
 version = "0.1.0"
-description = "Add your description here"
+description = "FastAPI helpers for Better Auth JWT verification"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "pyjwt>=2.12.1",
+license = "MIT"
+authors = [
+    { name = "Luka Onikadze" },
 ]
+keywords = ["better-auth", "fastapi", "jwt", "jwks", "auth"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pyjwt[crypto]>=2.12.1",
+]
+
+[project.optional-dependencies]
+fastapi = [
+    "fastapi>=0.100",
+]
+dev = [
+    "fastapi>=0.100",
+    "pytest>=7.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/lukonik/fastapi-betterauth"
+Repository = "https://github.com/lukonik/fastapi-betterauth"
+Issues = "https://github.com/lukonik/fastapi-betterauth/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fastapi_betterauth"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
