@@ -1,9 +1,10 @@
 import asyncio
 
+import jwt
 import pytest
 from fastapi import HTTPException, Request
 
-from fastapi_betterauth import BetterAuth
+from fastapi_betterauth import BetterAuth, TokenValidationError
 
 
 def make_request(headers: dict[str, str] | None = None) -> Request:
@@ -49,3 +50,31 @@ def test_invalid_bearer_authorization_raises_401() -> None:
         asyncio.run(auth(make_request({"Authorization": "Bearer invalid-token"})))
 
     assert exc_info.value.status_code == 401
+
+
+def test_fetch_token_wraps_jwt_errors() -> None:
+    auth = BetterAuth("http://localhost:3000")
+
+    class JwkClient:
+        def get_signing_key_from_jwt(self, token: str) -> object:
+            raise jwt.DecodeError("invalid token")
+
+    auth._BetterAuth__client = JwkClient()  # type: ignore[attr-defined]
+
+    with pytest.raises(TokenValidationError):
+        auth.fetch_token("invalid-token")
+
+
+def test_token_validation_errors_are_returned_as_401() -> None:
+    auth = BetterAuth("http://localhost:3000")
+
+    def raise_token_error(token: str) -> object:
+        raise TokenValidationError("Invalid bearer token")
+
+    auth.fetch_token = raise_token_error  # type: ignore[method-assign]
+
+    with pytest.raises(HTTPException) as exc_info:
+        asyncio.run(auth(make_request({"Authorization": "Bearer invalid-token"})))
+
+    assert exc_info.value.status_code == 401
+    assert exc_info.value.headers == {"WWW-Authenticate": "Bearer"}

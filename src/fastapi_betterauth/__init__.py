@@ -1,14 +1,11 @@
-import dataclasses
-import time
 from dataclasses import dataclass
 from ssl import SSLContext
-from typing import Any, TypedDict, Union
+from typing import Any, Union
 
 import jwt
-from fastapi import Request
+from fastapi import HTTPException, Request, status
 from fastapi.security import OAuth2
 from jwt import PyJWKClient
-from typing_extensions import Unpack
 
 CLIENT: Union[PyJWKClient, None] = None
 BASE_URL: Union[str, None] = None
@@ -37,6 +34,10 @@ class User:
     name: str
     sub: str
     updatedAt: str
+
+
+class TokenValidationError(Exception):
+    """Raised when a bearer token cannot be validated."""
 
 
 class BetterAuth(OAuth2):
@@ -68,17 +69,26 @@ class BetterAuth(OAuth2):
             ssl_context=ssl_context,
         )
 
-    def fetch_token(self, token: str):
-        signing_key = self.__client.get_signing_key_from_jwt(token)
-        response = jwt.decode(
-            token,
-            signing_key.key,
-            algorithms=["EdDSA"],
-            issuer=self.base_url,
-            audience=self.base_url,
+    def fetch_token(self, token: str) -> User:
+        try:
+            signing_key = self.__client.get_signing_key_from_jwt(token)
+            response = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["EdDSA"],
+                issuer=self.base_url,
+                audience=self.base_url,
+            )
+            return User(**response)
+        except (jwt.PyJWTError, TypeError) as exc:
+            raise TokenValidationError("Invalid bearer token") from exc
+
+    def make_not_authenticated_error(self) -> HTTPException:
+        return HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-        user = User(**response)
-        return user
 
     async def __call__(self, request: Request) -> Any | None:
         authorization = request.headers.get("Authorization")
@@ -90,5 +100,5 @@ class BetterAuth(OAuth2):
 
         try:
             return self.fetch_token(param)
-        except jwt.PyJWTError as exc:
+        except TokenValidationError as exc:
             raise self.make_not_authenticated_error() from exc
