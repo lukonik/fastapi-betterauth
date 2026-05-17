@@ -1,14 +1,11 @@
 from dataclasses import dataclass
 from ssl import SSLContext
-from typing import Any, Union
+from typing import Any
 
 import jwt
 from fastapi import HTTPException, Request, status
 from fastapi.security import OAuth2
 from jwt import PyJWKClient
-
-CLIENT: Union[PyJWKClient, None] = None
-BASE_URL: Union[str, None] = None
 
 
 def _get_authorization_scheme_param(
