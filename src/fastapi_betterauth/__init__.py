@@ -3,12 +3,23 @@ from ssl import SSLContext
 from typing import Any, TypedDict, Union
 
 import jwt
+from fastapi import Request
 from fastapi.security import OAuth2
 from jwt import PyJWKClient
 from typing_extensions import Unpack
 
 CLIENT: Union[PyJWKClient, None] = None
 BASE_URL: Union[str, None] = None
+
+
+def __get_authorization_scheme_param(
+    authorization_header_value: str | None,
+) -> tuple[str, str]:
+    if not authorization_header_value:
+        return "", ""
+    scheme, _, param = authorization_header_value.partition(" ")
+    return scheme, param.strip()
+
 
 #  self,
 #         uri: str,
@@ -36,6 +47,7 @@ class BetterAuth(OAuth2):
         ssl_context: SSLContext | None = None,
     ):
         super().__init__()
+        self.base_url = base_url
         full_url = f"{base_url}{auth_path}"
         self.__client = PyJWKClient(
             full_url,
@@ -48,55 +60,23 @@ class BetterAuth(OAuth2):
             ssl_context=ssl_context,
         )
 
-    def is_authorized(self):
+    def fetch_token(self, token: str):
         signing_key = self.__client.get_signing_key_from_jwt(token)
         return jwt.decode(
             token,
             signing_key.key,
             algorithms=["EdDSA"],
-            issuer=BASE_URL,
-            audience=BASE_URL,
+            issuer=self.base_url,
+            audience=self.base_url,
         )
 
-
-class PyJWKClientKwargs(TypedDict, total=False):
-    cache_keys: bool
-    max_cached_keys: int
-    cache_jwk_set: bool
-    lifespan: float
-    headers: Union[dict[str, Any], None]
-    timeout: float
-    ssl_context: Union[SSLContext, None]
-
-
-def init_client(
-    base_url: str,
-    auth_path: str = "/api/auth/jwks",
-    **kwargs: Unpack[PyJWKClientKwargs],
-):
-    full_url = f"{base_url}{auth_path}"
-    global BASE_URL, CLIENT
-    BASE_URL = base_url
-    base_url = base_url
-    CLIENT = PyJWKClient(
-        **kwargs,
-        uri=full_url,
-    )
-
-
-def _assert_client() -> PyJWKClient:
-    if CLIENT is None:
-        raise RuntimeError("Client is not initialized call init_client first")
-    return CLIENT
-
-
-def validate_token(token: str):
-    client = _assert_client()
-    signing_key = client.get_signing_key_from_jwt(token)
-    return jwt.decode(
-        token,
-        signing_key.key,
-        algorithms=["EdDSA"],
-        issuer=BASE_URL,
-        audience=BASE_URL,
-    )
+    async def __call__(self, request: Request) -> str | None:
+        authorization = request.headers.get("Authorization")
+        scheme, param = __get_authorization_scheme_param(authorization)
+        if not authorization or scheme.lower() != "bearer":
+            if self.auto_error:
+                raise self.make_not_authenticated_error()
+        else:
+            return None
+        user = self.fetch_token(param)
+        return user

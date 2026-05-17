@@ -1,13 +1,10 @@
 import os
-from contextlib import asynccontextmanager
-from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jwt.exceptions import InvalidTokenError, PyJWKClientError
+from fastapi.security import HTTPBearer
 
-from fastapi_betterauth import BetterAuth, init_client, validate_token
+from fastapi_betterauth import BetterAuth
 
 bearer = HTTPBearer(auto_error=False)
 
