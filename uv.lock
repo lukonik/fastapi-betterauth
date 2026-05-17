@@ -227,7 +227,7 @@ wheels = [
 
 [[package]]
 name = "fastapi-betterauth"
-version = "0.1.1"
+version = "0.2.3"
 source = { editable = "." }
 dependencies = [
     { name = "pyjwt", extra = ["crypto"] },

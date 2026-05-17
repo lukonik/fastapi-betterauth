@@ -42,7 +42,7 @@ app.add_middleware(
 
 @app.get("/")
 def home(claims: Annotated[User, Depends(better_auth)]):
-    return claims.email
+    return claims["email"]
 
 
 @app.get("/me")

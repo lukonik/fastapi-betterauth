@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from ssl import SSLContext
-from typing import Any
+from typing import Any, TypedDict, cast
 
 import jwt
 from fastapi import HTTPException, Request, status
@@ -17,14 +16,13 @@ def _get_authorization_scheme_param(
     return scheme, param.strip()
 
 
-@dataclass
-class User:
+class User(TypedDict, total=False):
     aud: str
     createdAt: str
     email: str
-    emailVerified: str
-    exp: str
-    iat: str
+    emailVerified: bool
+    exp: int
+    iat: int
     id: str
     image: str
     iss: str
@@ -76,7 +74,7 @@ class BetterAuth(OAuth2):
                 issuer=self.base_url,
                 audience=self.base_url,
             )
-            return User(**response)
+            return cast(User, response)
         except (jwt.PyJWTError, TypeError) as exc:
             raise TokenValidationError("Invalid bearer token") from exc
 
@@ -87,7 +85,7 @@ class BetterAuth(OAuth2):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    async def __call__(self, request: Request) -> Any | None:
+    async def __call__(self, request: Request) -> User | None:
         authorization = request.headers.get("Authorization")
         scheme, param = _get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
