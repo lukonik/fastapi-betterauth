@@ -85,3 +85,30 @@ claims = validate_token(token)
 
 Prefer `BetterAuthVerifier` for new code because it avoids global state and
 works better for tests, multiple apps, and multi-tenant services.
+
+## FastAPI demo server
+
+This repository includes a small FastAPI demo in `examples/fastapi_demo.py`.
+Use it to test a real bearer token issued by your Better Auth application.
+
+```bash
+BETTER_AUTH_BASE_URL="http://localhost:3000" uv run python -m uvicorn examples.fastapi_demo:app --reload
+```
+
+The demo reads JWKS from `${BETTER_AUTH_BASE_URL}/api/auth/jwks` by default.
+Override that path with `BETTER_AUTH_JWKS_PATH` if your Better Auth app uses a
+different route.
+
+Public route:
+
+```bash
+curl http://localhost:8000/public
+```
+
+Protected route:
+
+```bash
+curl \
+  -H "Authorization: Bearer $BETTER_AUTH_TOKEN" \
+  http://localhost:8000/me
+```
