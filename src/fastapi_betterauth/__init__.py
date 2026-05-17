@@ -85,7 +85,7 @@ class BetterAuth(OAuth2):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    async def __call__(self, request: Request) -> User | None:
+    async def __call__(self, request: Request) -> Any | None:
         authorization = request.headers.get("Authorization")
         scheme, param = _get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
