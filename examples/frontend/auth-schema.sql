@@ -52,3 +52,11 @@ CREATE TABLE IF NOT EXISTS "verification" (
 
 CREATE INDEX IF NOT EXISTS "verification_identifier_idx"
   ON "verification" ("identifier");
+
+CREATE TABLE IF NOT EXISTS "jwks" (
+  "id" text NOT NULL PRIMARY KEY,
+  "publicKey" text NOT NULL,
+  "privateKey" text NOT NULL,
+  "createdAt" date NOT NULL,
+  "expiresAt" date
+);

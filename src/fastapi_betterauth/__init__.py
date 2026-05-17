@@ -1,4 +1,6 @@
+import dataclasses
 import time
+from dataclasses import dataclass
 from ssl import SSLContext
 from typing import Any, TypedDict, Union
 
@@ -12,7 +14,7 @@ CLIENT: Union[PyJWKClient, None] = None
 BASE_URL: Union[str, None] = None
 
 
-def __get_authorization_scheme_param(
+def _get_authorization_scheme_param(
     authorization_header_value: str | None,
 ) -> tuple[str, str]:
     if not authorization_header_value:
@@ -21,15 +23,20 @@ def __get_authorization_scheme_param(
     return scheme, param.strip()
 
 
-#  self,
-#         uri: str,
-#         cache_keys: bool = False,
-#         max_cached_keys: int = 16,
-#         cache_jwk_set: bool = True,
-#         lifespan: float = 300,
-#         headers: dict[str, Any] | None = None,
-#         timeout: float = 30,
-#         ssl_context: SSLContext | None = None,
+@dataclass
+class User:
+    aud: str
+    createdAt: str
+    email: str
+    emailVerified: str
+    exp: str
+    iat: str
+    id: str
+    image: str
+    iss: str
+    name: str
+    sub: str
+    updatedAt: str
 
 
 class BetterAuth(OAuth2):
@@ -45,8 +52,9 @@ class BetterAuth(OAuth2):
         headers: dict[str, Any] | None = None,
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
+        auto_error: bool = True,
     ):
-        super().__init__()
+        super().__init__(auto_error=auto_error)
         self.base_url = base_url
         full_url = f"{base_url}{auth_path}"
         self.__client = PyJWKClient(
@@ -62,21 +70,25 @@ class BetterAuth(OAuth2):
 
     def fetch_token(self, token: str):
         signing_key = self.__client.get_signing_key_from_jwt(token)
-        return jwt.decode(
+        response = jwt.decode(
             token,
             signing_key.key,
             algorithms=["EdDSA"],
             issuer=self.base_url,
             audience=self.base_url,
         )
+        user = User(**response)
+        return user
 
-    async def __call__(self, request: Request) -> str | None:
+    async def __call__(self, request: Request) -> Any | None:
         authorization = request.headers.get("Authorization")
-        scheme, param = __get_authorization_scheme_param(authorization)
+        scheme, param = _get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
                 raise self.make_not_authenticated_error()
-        else:
             return None
-        user = self.fetch_token(param)
-        return user
+
+        try:
+            return self.fetch_token(param)
+        except jwt.PyJWTError as exc:
+            raise self.make_not_authenticated_error() from exc

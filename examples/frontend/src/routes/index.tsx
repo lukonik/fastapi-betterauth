@@ -11,12 +11,20 @@ function Home() {
     await refetch();
   }
 
-  const handleClick = () => {
-    fetch("http://127.0.0.1:8000")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      });
+  const handleClick = async () => {
+    const { data } = await authClient.token();
+    if (!data?.token) {
+      return;
+    }
+    const { token } = data;
+
+    const response = await fetch("http://127.0.0.1:8000", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => res.json());
+
+    console.log(response);
   };
 
   return (

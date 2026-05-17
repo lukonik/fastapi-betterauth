@@ -1,7 +1,7 @@
 # Better Auth SQLite Demo
 
 TanStack Start example with Better Auth email/password registration and login.
-User, session, account, and verification records are stored in SQLite.
+User, session, account, verification, and JWKS records are stored in SQLite.
 
 ## Run
 
