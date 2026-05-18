@@ -50,25 +50,7 @@ const response = await fetch("http://127.0.0.1:8000/me", {
 });
 ```
 
-If your Better Auth JWKS endpoint is not `/api/auth/jwks`, pass a custom path:
-
-```py
-better_auth = BetterAuth(
-    "https://auth.example.com",
-    auth_path="/custom/auth/jwks",
-)
-```
-
-For optional authentication, set `auto_error=False`. Missing credentials return
-`None` instead of raising a 401 response. Invalid bearer tokens still raise a
-401 response:
-
-```py
-optional_better_auth = BetterAuth(
-    "https://auth.example.com",
-    auto_error=False,
-)
-```
+Don't forget to enable CORS in FastAPI [link](https://fastapi.tiangolo.com/tutorial/cors/)
 
 
 ## API Table
