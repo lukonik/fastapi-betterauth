@@ -1,6 +1,6 @@
 # fastapi-betterauth ⚡️
 
-A simple FastAPI dependency to securely validate JSON Web Tokens (JWTs) issued by [Better Auth](https://better-auth.com/).
+A simple *fast* FastAPI dependency to securely validate JSON Web Tokens (JWTs) issued by [Better Auth](https://better-auth.com/).
 
 If your frontend logs users in with Better Auth and sends their tokens to your FastAPI backend, this library will verify those tokens and extract the user's details for you.
 
