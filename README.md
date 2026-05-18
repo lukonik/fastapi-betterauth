@@ -14,6 +14,11 @@ The package requires Python 3.10+
 
 ## Usage
 
+First you have to enable JWT plugin on your Better Auth Server check here [link](https://better-auth.com/docs/plugins/jwt)
+
+*Do not forget to add JWKS table to the DB [link](https://better-auth.com/docs/plugins/jwt#schema)*
+
+
 Enable the Better Auth JWT plugin on your Better Auth server:
 
 ```ts
@@ -86,7 +91,6 @@ optional_better_auth = BetterAuth(
 )
 ```
 
-For full better-auth docs check here [link](https://better-auth.com/docs/plugins/jwt)
 
 ## API Table
 
