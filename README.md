@@ -1,4 +1,4 @@
-# fastapi-betterauth
+# fastapi-betterauth ⚡️
 
 A simple FastAPI dependency to securely validate JSON Web Tokens (JWTs) issued by [Better Auth](https://better-auth.com/).
 
@@ -85,6 +85,8 @@ optional_better_auth = BetterAuth(
     auto_error=False,
 )
 ```
+
+For full better-auth docs check here [link](https://better-auth.com/docs/plugins/jwt)
 
 ## API Table
 
