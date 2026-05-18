@@ -18,28 +18,7 @@ First you have to enable JWT plugin on your Better Auth Server check here [link]
 
 *Do not forget to add JWKS table to the DB [link](https://better-auth.com/docs/plugins/jwt#schema)*
 
-
-Enable the Better Auth JWT plugin on your Better Auth server:
-
-```ts
-import { betterAuth } from "better-auth";
-import { jwt } from "better-auth/plugins";
-
-export const auth = betterAuth({
-  plugins: [jwt()],
-});
-```
-
-Enable the Better Auth JWT client plugin where your frontend requests tokens:
-
-```ts
-import { jwtClient } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
-
-export const authClient = createAuthClient({
-  plugins: [jwtClient()],
-});
-```
+After it is done, you are ready to go.
 
 Create a FastAPI dependency with your Better Auth base URL:
 
