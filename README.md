@@ -30,7 +30,7 @@ from fastapi_betterauth import BetterAuth, User
 
 app = FastAPI()
 
-better_auth = BetterAuth("http://localhost:3000")
+better_auth = BetterAuth("http://localhost:3000") # this is the URL where better-auth is hosted
 
 
 @app.get("/me")
