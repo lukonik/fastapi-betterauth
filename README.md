@@ -1,21 +1,10 @@
 # fastapi-betterauth
 
-FastAPI helpers for validating Better Auth JWTs with the JWKS endpoint exposed by
-the Better Auth JWT plugin.
+A simple FastAPI dependency to securely validate JSON Web Tokens (JWTs) issued by [Better Auth](https://better-auth.com/).
 
-Use this package when Better Auth issues the JWT and your FastAPI service needs
-to accept that token in an `Authorization: Bearer <token>` header. The
-`BetterAuth` dependency fetches the public signing key from Better Auth,
-verifies the JWT with `EdDSA`, validates the issuer and audience against your
-Better Auth base URL, and returns the decoded claims to your route.
-
-If you already know what JWKS is and already enabled the Better Auth JWT plugin,
-read on from Installation and Usage. Otherwise, start with the Guide, then come
-back to Installation and Usage.
+If your frontend logs users in with Better Auth and sends their tokens to your FastAPI backend, this library will verify those tokens and extract the user's details for you.
 
 ## Installation
-
-Install the package with the FastAPI extra:
 
 ```bash
 pip install "fastapi-betterauth"
@@ -174,18 +163,3 @@ def private_route(user: Annotated[User, Depends(better_auth)]):
 If the request has no bearer token, or the token is expired, malformed, signed
 with the wrong key, or issued for a different Better Auth base URL, the dependency
 returns `401 Not authenticated`.
-
-### Local demo shape
-
-Run Better Auth on `http://localhost:3000` and FastAPI on
-`http://127.0.0.1:8000`. Configure FastAPI with:
-
-```py
-better_auth = BetterAuth("http://localhost:3000")
-```
-
-Then call FastAPI with:
-
-```http
-Authorization: Bearer <token-from-authClient.token()>
-```
